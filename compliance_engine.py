@@ -9,7 +9,7 @@ class ComplianceEngine:
         excel_path = FSSAI_CSV.replace('.csv', '.xlsx')
         
         if os.path.exists(excel_path):
-            # Load using openpyxl engine
+            # Load using openpyxl engine[cite: 2]
             self.rules_df = pd.read_excel(excel_path, engine='openpyxl')
             print(f"Success: Rules loaded from {excel_path}")
         else:
@@ -21,7 +21,8 @@ class ComplianceEngine:
             'product_name': r'(?i)(Himalayan\s*Brew|Berry\s*Biscus|Smarat|Hide\s*and\s*Stick)',
             'batch_number': r'(?i)(?:batch|lot|b\.?|no\.?|batchno)[^\w]*([A-Z0-9a-z]{3,15})',
             'best_before': r'(?i)(?:best\s*before|expiry|exp|use\s*by)[^\w]*([\d\./\-]{5,})',
-            'fssai_license': r'(\d{14})'
+            # STRICT FSSAI CHECK: Requires keywords like fssai or lic before the 14 digits
+            'fssai_license': r'(?i)(?:fssai|lic\.?\s*no\.?|registration)[^\w]*(\d{14})'
         }
         
         results = {}
@@ -29,7 +30,7 @@ class ComplianceEngine:
         
         for key, pattern in patterns.items():
             match = re.search(pattern, text)
-            # Safely get match group
+            # Safely get match group[cite: 2]
             if match:
                 extracted[key] = match.group(1).strip() if match.groups() else match.group(0).strip()
                 results[key] = "PASS"
