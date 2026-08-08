@@ -21,21 +21,28 @@ class ComplianceEngine:
             'product_name': r'(?i)(Himalayan\s*Brew|Berry\s*Biscus|Smarat|Hide\s*and\s*Stick)',
             'batch_number': r'(?i)(?:batch|lot|b\.?|no\.?|batchno)[^\w]*([A-Z0-9a-z]{3,15})',
             'best_before': r'(?i)(?:best\s*before|expiry|exp|use\s*by)[^\w]*([\d\./\-]{5,})',
-            # STRICT FSSAI CHECK: Requires keywords like fssai or lic before the 14 digits
-            'fssai_license': r'(?i)(?:fssai|lic\.?\s*no\.?|registration)[^\w]*(\d{14})'
         }
         
         results = {}
         extracted = {}
         
+        # 1. Validate standard patterns
         for key, pattern in patterns.items():
             match = re.search(pattern, text)
-            # Safely get match group[cite: 2]
             if match:
                 extracted[key] = match.group(1).strip() if match.groups() else match.group(0).strip()
                 results[key] = "PASS"
             else:
                 extracted[key] = "Not Detected"
                 results[key] = "FAIL"
+                
+        # 2. Strict FSSAI validation: Must have keyword "FSSAI" AND a valid 14-digit number
+        fssai_match = re.search(r'(?i)fssai[^\w]*(\d{14})', text)
+        if fssai_match:
+            extracted['fssai_license'] = fssai_match.group(1).strip()
+            results['fssai_license'] = "PASS"
+        else:
+            extracted['fssai_license'] = "Not Detected / Missing FSSAI Keyword"
+            results['fssai_license'] = "FAIL"
                 
         return results, extracted
