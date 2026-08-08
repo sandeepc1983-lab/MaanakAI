@@ -61,8 +61,8 @@ if app_mode == "B2B Manufacturer Portal":
                     
                     st.success("Audit Completed Successfully!")
                     
-                    # Display results metrics
-                    m1, m2 = st.columns(2)
+                    # Display results metrics with expanded width for m1 to prevent text clipping
+                    m1, m2 = st.columns([1.5, 1])
                     m1.metric("Compliance Status", "REVIEW REQUIRED", delta="1 Flagged Claim", delta_color="inverse")
                     m2.metric("Execution Time", "0.41s")
 
